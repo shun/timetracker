@@ -1,0 +1,12 @@
+{
+  "2014-10-14":[
+      {
+        "time": "09:00",
+        "workitem": "sample1"
+      },
+      {
+        "time": "10:00",
+        "workitem": "sample2"
+      }
+  ]
+}
