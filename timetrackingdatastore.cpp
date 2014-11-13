@@ -1,6 +1,7 @@
 #include <iostream>>
 #include <fstream>
 #include <QDate>
+#include <QStringList>
 #include "timetrackingdatastore.h"
 
 using namespace std;
@@ -24,7 +25,29 @@ bool TimeTrackingDataStore::loadjson()
     return true;
 }
 
-bool TimeTrackingDataStore::writejson(QString trackitems)
+bool TimeTrackingDataStore::storeTrackItems(QString date, QString items)
+{
+    picojson::object& obj = timetrackitems_->get<picojson::object>();
+    picojson::array& array = obj[date.toStdString()].get<picojson::array>();
+    array.clear();
+    QStringList list = items.split("\n");
+    QStringList tmp;
+    string key;
+    for (int idx = 0; idx < list.size(); idx++)
+    {
+        tmp = list.at(idx).split("\t");
+        picojson::object newobj;
+        newobj.insert(make_pair("time", picojson::value(tmp[0].toStdString())));
+        newobj.insert(make_pair("worktime", picojson::value(tmp[1].toStdString())));
+        picojson::value iv(newobj);
+        array.push_back(iv);
+    }
+
+    cout << timetrackitems_->serialize() << endl;
+    return true;
+}
+
+bool TimeTrackingDataStore::writejson()
 {
     return true;
 }

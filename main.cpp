@@ -11,5 +11,6 @@ int main(int argc, char *argv[])
 
     TimeTrackingDataStore store;
     store.loadjson();
+    store.storeTrackItems("2014-10-14","09:00\taaaaaaa\n10:00\tbbbbbbbb");
     return app.exec();
 }

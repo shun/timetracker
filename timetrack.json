@@ -8,5 +8,15 @@
         "time": "10:00",
         "workitem": "sample2"
       }
+  ],
+  "2014-10-15":[
+      {
+        "time": "09:00",
+        "workitem": "sample1"
+      },
+      {
+        "time": "10:00",
+        "workitem": "sample2"
+      }
   ]
 }

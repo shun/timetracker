@@ -9,7 +9,8 @@ class TimeTrackingDataStore : public QObject
 public:
     TimeTrackingDataStore();
     bool loadjson();
-    bool writejson(QString trackitems);
+    bool writejson();
+    bool storeTrackItems(QString date, QString items);
     QString getTrackItems(QDate date);
 
 private :
