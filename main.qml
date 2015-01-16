@@ -12,7 +12,8 @@ ApplicationWindow {
             title: qsTr("File")
             MenuItem {
                 text: qsTr("&Open")
-                onTriggered: console.log("Open action triggered");
+                onTriggered: {
+                }
             }
             MenuItem {
                 text: qsTr("Exit")

@@ -34,18 +34,16 @@ Rectangle {
         width: root_.width - edgemargin * 2
         height: 22
         placeholderText: qsTr("What will you do ?")
-
-        onTextChanged: {
-            workitemlist.visible = true
-        }
+        focus: true
 
         function regWorkItem() {
             var curtime = new Date()
-            var trackitem = cnvDatetimeToString(curtime, 'YYYY-MM-DD hh:mm') + "\t" + workitem.text
-            console.log("onEditingFinished : " + cnvDatetimeToString(curtime, 'YYYY-MM-DD hh:mm'))
+//            var trackitem = cnvDatetimeToString(curtime, 'YYYY-MM-DD hh:mm') + "\t" + workitem.text
+            var trackitem = cnvDatetimeToString(curtime, 'hh:mm') + "\t" + workitem.text
+
             tracklist.text = trackitem + "\n" + tracklist.text
             workitem.text = ""
-            workitemlist.visible = false
+            datastore.storeTrackItems(cnvDatetimeToString(curtime, 'YYYY-MM-DD'), tracklist.text)
         }
 
         Keys.onReturnPressed: {
@@ -56,24 +54,7 @@ Rectangle {
             regWorkItem()
         }
     }
-/*
-    TextArea {
-        id: workitemlist
-        x: workitem.x
-        y: workitem.height + workitem.y
-        z:2
-        visible: false
-        width: root_.width - edgemargin * 2
-        height: 200
-        anchors.leftMargin: 8
-        anchors.topMargin: workitem.height + workitem.y
-        anchors.top: parent.top
-        anchors.left: parent.left
 
-        Keys.onReturnPressed: {
-        }
-    }
-*/
     TextArea {
         id: tracklist
         width: root_.width - edgemargin * 2
@@ -82,5 +63,9 @@ Rectangle {
         anchors.topMargin: 36
         anchors.top: parent.top
         anchors.left: parent.left
+    }
+
+    Component.onCompleted: {
+
     }
 }

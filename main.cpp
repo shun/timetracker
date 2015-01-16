@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include "timetrackingdatastore.h"
 
 int main(int argc, char *argv[])
@@ -7,10 +8,10 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
-
     TimeTrackingDataStore store;
     store.loadjson();
-    store.storeTrackItems("2014-10-14","09:00\taaaaaaa\n10:00\tbbbbbbbb");
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    engine.rootContext()->setContextProperty("datastore", &store);
+
     return app.exec();
 }
