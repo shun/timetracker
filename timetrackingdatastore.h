@@ -13,7 +13,7 @@ public:
     bool loadjson();
     bool writejson();
     Q_INVOKABLE bool storeTrackItems(QString date, QString items);
-    QString getTrackItems(QDate date);
+    Q_INVOKABLE QString getTrackItems(QString date);
 
 private :
     picojson::value *timetrackitems_;

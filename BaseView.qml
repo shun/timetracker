@@ -38,7 +38,6 @@ Rectangle {
 
         function regWorkItem() {
             var curtime = new Date()
-//            var trackitem = cnvDatetimeToString(curtime, 'YYYY-MM-DD hh:mm') + "\t" + workitem.text
             var trackitem = cnvDatetimeToString(curtime, 'hh:mm') + "\t" + workitem.text
 
             tracklist.text = trackitem + "\n" + tracklist.text
@@ -66,6 +65,9 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        var curtime = new Date()
+        var s = datastore.getTrackItems(cnvDatetimeToString(curtime, 'YYYY-MM-DD'))
 
+        tracklist.text = s
     }
 }
