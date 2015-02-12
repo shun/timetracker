@@ -31,7 +31,7 @@ Rectangle {
         id: workitem
         x: edgemargin
         y: edgemargin
-        width: root_.width - edgemargin * 2
+        width: root_.width - edgemargin * 2 - cal.width
         height: 22
         placeholderText: qsTr("What will you do ?")
         focus: true
@@ -39,10 +39,18 @@ Rectangle {
         function regWorkItem() {
             var curtime = new Date()
             var trackitem = cnvDatetimeToString(curtime, 'hh:mm') + "\t" + workitem.text
+            var strselecteddate = Qt.formatDate(cal.selectedDate, "yyyy-MM-dd")
+            var strcurdate = cnvDatetimeToString(curtime, 'YYYY-MM-DD')
+
+            if (strselecteddate != strcurdate)
+            {
+                var s = datastore.getTrackItems(strcurdate)
+                tracklist.text = s
+            }
 
             tracklist.text = trackitem + "\n" + tracklist.text
             workitem.text = ""
-            datastore.storeTrackItems(cnvDatetimeToString(curtime, 'YYYY-MM-DD'), tracklist.text)
+            datastore.storeTrackItems(strcurdate, tracklist.text)
         }
 
         Keys.onReturnPressed: {
@@ -56,7 +64,7 @@ Rectangle {
 
     TextArea {
         id: tracklist
-        width: root_.width - edgemargin * 2
+        width: root_.width - edgemargin * 2 - cal.width
         height: root_.height - anchors.topMargin - edgemargin
         anchors.leftMargin: 8
         anchors.topMargin: 36
@@ -64,10 +72,19 @@ Rectangle {
         anchors.left: parent.left
     }
 
-    Component.onCompleted: {
-        var curtime = new Date()
-        var s = datastore.getTrackItems(cnvDatetimeToString(curtime, 'YYYY-MM-DD'))
+    Calendar {
+        id : cal
+        x: root_.width - cal.width
+        weekNumbersVisible: true
 
+        onClicked: {
+            var s = datastore.getTrackItems(Qt.formatDate(cal.selectedDate, "yyyy-MM-dd"))
+            tracklist.text = s
+        }
+    }
+
+    Component.onCompleted: {
+        var s = datastore.getTrackItems(Qt.formatDate(cal.selectedDate, "yyyy-MM-dd"))
         tracklist.text = s
     }
 }
