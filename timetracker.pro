@@ -1,11 +1,11 @@
 TEMPLATE = app
 
-QT += qml quick widgets
+QT += qml quick widgets core
 
-SOURCES += main.cpp \
-    timetrackingdatastore.cpp
+SOURCES += src/main.cpp \
+    src/timetrackingdatastore.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += res/qml/qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -13,5 +13,8 @@ QML_IMPORT_PATH =
 # Default rules for deployment.
 include(deployment.pri)
 
+INCLUDEPATH += \
+	inc
+
 HEADERS += \
-    timetrackingdatastore.h
+	inc/timetrackingdatastore.h

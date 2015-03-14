@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>BaseView.qml</file>
+        <file>CalendarView.qml</file>
+        <file>CalendarRowView.qml</file>
     </qresource>
 </RCC>
