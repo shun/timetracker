@@ -10,9 +10,8 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     TimeTrackingDataStore store;
     store.loadjson();
-    store.getTrackItems("2015-01-17");
     engine.rootContext()->setContextProperty("datastore", &store);
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/res/qml/main.qml")));
 
     return app.exec();
 }

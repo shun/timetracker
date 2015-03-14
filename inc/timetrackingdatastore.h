@@ -14,6 +14,7 @@ public:
     bool writejson();
     Q_INVOKABLE bool storeTrackItems(QString date, QString items);
     Q_INVOKABLE QString getTrackItems(QString date);
+    Q_INVOKABLE QString getTrackSummary(QString date);
 
 private :
     picojson::value *timetrackitems_;

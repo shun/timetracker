@@ -1,56 +1,46 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
+import "."
 
 Rectangle {
     id: root_
-    width: 640
-    height: 480
 
-    property int edgemargin: 8
+    signal selectedDate(string date)
 
-    function appendTrack(item) {
-
-    }
-    function cnvDatetimeToString(datetime, format) {
-        if (!format) format = 'YYYY-MM-DD hh:mm:ss.SSS';
-        format = format.replace(/YYYY/g, datetime.getFullYear());
-        format = format.replace(/MM/g, ('0' + (datetime.getMonth() + 1)).slice(-2));
-        format = format.replace(/DD/g, ('0' + datetime.getDate()).slice(-2));
-        format = format.replace(/hh/g, ('0' + datetime.getHours()).slice(-2));
-        format = format.replace(/mm/g, ('0' + datetime.getMinutes()).slice(-2));
-        format = format.replace(/ss/g, ('0' + datetime.getSeconds()).slice(-2));
-        if (format.match(/S/g)) {
-            var milliSeconds = ('00' + datetime.getMilliseconds()).slice(-3);
-            var length = format.match(/S/g).length;
-            for (var i = 0; i < length; i++) format = format.replace(/S/, milliSeconds.substring(i, i + 1));
-        }
-        return format;
+    function selectDate(date_) {
+        cal.selectedDate = date_
+        var s = datastore.getTrackItems(date_)
+        tracklist.text = s
     }
 
     TextField {
         id: workitem
-        x: edgemargin
-        y: edgemargin
-        width: root_.width - edgemargin * 2 - cal.width
+        x: Const.cEDGE_MARGIN
+        y: Const.cEDGE_MARGIN
+        width: root_.width - Const.cEDGE_MARGIN * 2 - cal.width
         height: 22
         placeholderText: qsTr("What will you do ?")
         focus: true
 
         function regWorkItem() {
+            var s = ""
             var curtime = new Date()
-            var trackitem = cnvDatetimeToString(curtime, 'hh:mm') + "\t" + workitem.text
-            var strselecteddate = Qt.formatDate(cal.selectedDate, "yyyy-MM-dd")
-            var strcurdate = cnvDatetimeToString(curtime, 'YYYY-MM-DD')
+            var strtoday = Util.cnvDatetimeToString(curtime, 'YYYY-MM-DD')
+            var trackitem = Util.cnvDatetimeToString(curtime, 'hh:mm') + "\t" + workitem.text
 
-            if (strselecteddate != strcurdate)
+            console.log(Qt.formatDate(cal.selectedDate, "yyyy-MM-dd"))
+            console.log(strtoday)
+            if (Qt.formatDate(cal.selectedDate, "yyyy-MM-dd") != strtoday)
             {
-                var s = datastore.getTrackItems(strcurdate)
+                cal.selectedDate = strtoday
+                s = datastore.getTrackItems(Qt.formatDate(cal.selectedDate, "yyyy-MM-dd"))
                 tracklist.text = s
             }
 
+
             tracklist.text = trackitem + "\n" + tracklist.text
             workitem.text = ""
-            datastore.storeTrackItems(strcurdate, tracklist.text)
+            datastore.storeTrackItems(Util.cnvDatetimeToString(curtime, 'YYYY-MM-DD'), tracklist.text)
         }
 
         Keys.onReturnPressed: {
@@ -64,8 +54,8 @@ Rectangle {
 
     TextArea {
         id: tracklist
-        width: root_.width - edgemargin * 2 - cal.width
-        height: root_.height - anchors.topMargin - edgemargin
+        width: root_.width - Const.cEDGE_MARGIN * 2 - cal.width
+        height: root_.height - anchors.topMargin - Const.cEDGE_MARGIN
         anchors.leftMargin: 8
         anchors.topMargin: 36
         anchors.top: parent.top
@@ -73,18 +63,27 @@ Rectangle {
     }
 
     Calendar {
-        id : cal
-        x: root_.width - cal.width
+        id:cal
         weekNumbersVisible: true
 
+        x:root_.width - cal.width
+        y: Const.cEDGE_MARGIN
         onClicked: {
-            var s = datastore.getTrackItems(Qt.formatDate(cal.selectedDate, "yyyy-MM-dd"))
+            var date_ = Qt.formatDate(cal.selectedDate, "yyyy-MM-dd")
+            var s = datastore.getTrackItems(date_)
             tracklist.text = s
+            root_.selectedDate(date_)
+        }
+
+        onDoubleClicked: {
+            datastore.storeTrackItems(Qt.formatDate(cal.selectedDate, "yyyy-MM-dd"), tracklist.text)
         }
     }
 
     Component.onCompleted: {
-        var s = datastore.getTrackItems(Qt.formatDate(cal.selectedDate, "yyyy-MM-dd"))
+        var date_ = Qt.formatDate(cal.selectedDate, "yyyy-MM-dd")
+        var s = datastore.getTrackItems(date_)
         tracklist.text = s
+        root_.selectedDate(date_)
     }
 }

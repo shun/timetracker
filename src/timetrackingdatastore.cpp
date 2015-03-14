@@ -1,6 +1,7 @@
-#include <iostream>>
+#include <iostream>
 #include <fstream>
 #include <QDate>
+#include <QDateTime>
 #include <QStringList>
 #include <qDebug>
 #include "timetrackingdatastore.h"
@@ -10,7 +11,6 @@ using namespace std;
 TimeTrackingDataStore::TimeTrackingDataStore() :
     timetrackitems_(NULL)
 {
-    qDebug() << __FUNCTION__;
 }
 
 bool TimeTrackingDataStore::loadjson()
@@ -19,11 +19,18 @@ bool TimeTrackingDataStore::loadjson()
 
     if (NULL == timetrackitems_)
     {
-        timetrackitems_ = new picojson::value();
+        if (ifs)
+        {
+            timetrackitems_ = new picojson::value();
+            picojson::parse(*timetrackitems_, ifs);
+        }
+        else
+        {
+            timetrackitems_ = new picojson::value(picojson::object_type, true);
+        }
     }
-    picojson::parse(*timetrackitems_, ifs);
 
-    cout << timetrackitems_->serialize() << endl;
+//    cout << timetrackitems_->serialize() << endl;
     return true;
 }
 
@@ -40,6 +47,7 @@ bool TimeTrackingDataStore::storeTrackItems(QString date, QString items)
     QStringList list = items.split("\n");
     QStringList tmp;
     string key;
+
     for (int idx = 0; idx < list.size(); idx++)
     {
         tmp = list.at(idx).split("\t");
@@ -55,39 +63,96 @@ bool TimeTrackingDataStore::storeTrackItems(QString date, QString items)
     obj.insert(make_pair(stdstr, picojson::value(array)));
     cout << timetrackitems_->serialize() << endl;
 
-    writejson();
+    ofstream ofs("timetrack.json");
+    ofs << timetrackitems_->serialize(true) << endl;
     return true;
 }
 
 bool TimeTrackingDataStore::writejson()
 {
-    ofstream ofs("timetrack.json");
-    ofs << timetrackitems_->serialize() << endl;
     return true;
+}
+
+QString TimeTrackingDataStore::getTrackSummary(QString date)
+{
+    QString trackitems = "";
+
+    picojson::object& obj = timetrackitems_->get<picojson::object>();
+    picojson::array array;
+    array.clear();
+    string stdstr = date.toStdString();
+    if (obj.find(stdstr) == obj.end())
+    {
+        return "";
+    }
+
+    array = obj[stdstr].get<picojson::array>();
+
+    QDateTime prevtime;
+    QDateTime curtime;
+    string workitem = "";
+    QString str = "";
+    QString fmt = "yyyy-MM-dd hh:mm";
+    int hour, min;
+    int delta = 0;
+    bool firstdat = true;
+
+    for (picojson::array::iterator it = array.begin(); it != array.end(); it++)
+    {
+        picojson::object& o = it->get<picojson::object>();
+        str = QString::fromStdString(stdstr + " " + o["time"].get<string>());
+        workitem = o["workitem"].get<string>();
+        if (firstdat)
+        {
+            prevtime = QDateTime::fromString(str, fmt);
+            firstdat = false;
+        }
+        else
+        {
+            /*
+             * format :
+             * [starttime] [endtime] [worktime] [workitem]
+             *
+             */
+            curtime = QDateTime::fromString(str, fmt);
+            delta = curtime.secsTo(prevtime);
+            hour = delta / 60/60;
+            min = (delta - hour * 60 * 60) / 60;
+            char wtime[8];
+            sprintf(wtime, "%02d:%02d", hour, min);
+
+            trackitems += curtime.toString("hh:mm") + "\t" +
+                            prevtime.toString("hh:mm") + "\t" +
+                            QString::fromLocal8Bit(wtime) + "\t" +
+                            QString::fromStdString(workitem) + "\n";
+            prevtime = curtime;
+
+        }
+    }
+
+    return trackitems;
 }
 
 QString TimeTrackingDataStore::getTrackItems(QString date)
 {
     string trackitems = "";
-    picojson::object& obj = timetrackitems_->get<picojson::object>();
 
-    if (obj.find(date.toStdString()) == obj.end())
+    picojson::object& obj = timetrackitems_->get<picojson::object>();
+    picojson::array array;
+    array.clear();
+    string stdstr = date.toStdString();
+    if (obj.find(stdstr) == obj.end())
     {
         return "";
     }
 
-    picojson::array& dat = obj[date.toStdString()].get<picojson::array>();
-    picojson::array::iterator it;
-    picojson::object item;
+    array = obj[stdstr].get<picojson::array>();
 
-    for (it = dat.begin(); it < dat.end(); it++)
+    for (picojson::array::iterator it = array.begin(); it != array.end(); it++)
     {
-        if (trackitems.length() != 0)
-        {
-            trackitems += "\n";
-        }
-        item = it->get<picojson::object>();
-        trackitems += item["time"].get<std::string>() + "\t" + item["workitem"].get<std::string>();
+        picojson::object& o = it->get<picojson::object>();
+        trackitems += o["time"].get<string>() + "\t" +
+                o["workitem"].get<string>() + "\n";
     }
 
     return QString::fromStdString(trackitems);

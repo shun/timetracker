@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/qml/main.qml</file>
+        <file>res/qml/BaseView.qml</file>
+        <file>res/qml/SummaryView.qml</file>
+        <file>res/qml/ModeView.qml</file>
+        <file>res/qml/Const.qml</file>
+        <file>res/qml/Util.qml</file>
+        <file>res/qml/qmldir</file>
+    </qresource>
+</RCC>
